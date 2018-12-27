@@ -1,11 +1,48 @@
 FROM ubuntu:16.04
 LABEL maintainer = "Yajie Zhu <yajiez.me@gmail.com>"
 
+ENV TERM xterm
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
+ENV USER ubuntu
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+RUN useradd -d /home/$USER -ms /bin/bash -g root -G sudo -p $USER $USER
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+         build-essential \
+         cmake \
+         git \
+         curl \
+         wget \
+         vim \
+         zsh \
+         fonts-powerline \
+         ca-certificates \
+         libjpeg-dev \
+         libpng-dev &&\
+     rm -rf /var/lib/apt/lists/*
+
+RUN chsh $USER -s /bin/zsh
+
+# Oh My ZSH and Spaceship Prompt & Vim
+USER ubuntu
+WORKDIR /home/ubuntu
+
+ENV ZSH_CUSTOM ~/.oh-my-zsh/custom
+
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+
+RUN git clone https://github.com/denysdovhan/spaceship-prompt.git $ZSH_CUSTOM/themes/spaceship-prompt && \
+    ln -s $ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme && \
+    echo ZSH_THEME="spaceship" >> ~/.zshrc
+
+RUN wget https://raw.githubusercontent.com/liuchengxu/space-vim/master/install.sh -O - | zsh || true
+
+
 # Base CUDA
+USER root
+
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates apt-transport-https gnupg-curl && \
     rm -rf /var/lib/apt/lists/* && \
     NVIDIA_GPGKEY_SUM=d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5 && \
@@ -61,38 +98,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/*
 
 
-# oh my zsh and spaceship prompt & vim
-RUN apt-get update && apt-get install -y --no-install-recommends zsh fonts-powerline && chsh -s /bin/zsh && \
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" && \
-    git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt" && \
-    ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme" && \
-    echo ZSH_THEME="spaceship" >> ~/.zshrc && \
-    /bin/zsh <(curl -fsSL https://raw.githubusercontent.com/liuchengxu/space-vim/master/install.sh)
-
 # Python
 ARG PYTHON_VERSION=3.6
-RUN apt-get update && apt-get install -y --no-install-recommends \
-         build-essential \
-         cmake \
-         git \
-         curl \
-         vim \
-         ca-certificates \
-         libjpeg-dev \
-         libpng-dev &&\
-     rm -rf /var/lib/apt/lists/*
 
+USER ubuntu
+WORKDIR /home/ubuntu
 
-RUN curl -o ~/miniconda.sh -O  https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh  && \
+RUN curl -o ~/miniconda.sh -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh  && \
      chmod +x ~/miniconda.sh && \
-     ~/miniconda.sh -b -p /opt/conda && \
+     ~/miniconda.sh -b -p ~/miniconda && \
      rm ~/miniconda.sh && \
-     /opt/conda/bin/conda install -y python=$PYTHON_VERSION numpy pyyaml scipy ipython mkl mkl-include cython typing && \
-     /opt/conda/bin/conda install -y jupyterlab -c conda-forge && \
-     /opt/conda/bin/conda install -y pytorch torchvision cuda92 -c pytorch && \
-     /opt/conda/bin/conda clean -ya
+     ~/miniconda/bin/conda install -y python=$PYTHON_VERSION numpy pyyaml scipy ipython mkl mkl-include cython typing && \
+     ~/miniconda/bin/conda install -y jupyterlab -c conda-forge && \
+     ~/miniconda/bin/conda install -y pytorch torchvision cuda92 -c pytorch && \
+     ~/miniconda/bin/conda clean -ya
 
-ENV PATH /opt/conda/bin:$PATH
+ENV PATH  ~/miniconda/bin:$PATH
 
-WORKDIR /workspace
-RUN chmod -R a+w /workspace
+WORKDIR /home/ubuntu/projects
+RUN chmod -R a+w /home/ubuntu/projects
+
+CMD ["zsh"]
