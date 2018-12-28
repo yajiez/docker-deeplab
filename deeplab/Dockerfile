@@ -144,7 +144,6 @@ RUN curl -o /home/$USERNAME/miniconda.sh -O https://repo.continuum.io/miniconda/
      /home/$USERNAME/miniconda/bin/conda install -y tensorflow-gpu keras-gpu -c anaconda && \
      /home/$USERNAME/miniconda/bin/conda install -y pytorch torchvision cuda92 -c pytorch && \
      /home/$USERNAME/miniconda/bin/conda install -y -c pytorch -c fastai fastai && \
-     /home/$USERNAME/miniconda/bin/conda install -c allennlp allennlp && \
      /home/$USERNAME/miniconda/bin/conda clean -ya && \
      /home/$USERNAME/miniconda/bin/jupyter serverextension enable --py jupyterlab --user && \
      /home/$USERNAME/miniconda/bin/jupyter labextension install @pyviz/jupyterlab_pyviz
@@ -158,8 +157,6 @@ COPY ipython/default_import.py /home/$USERNAME/.ipython/profile_default/startup/
 
 ENV PATH /home/$USERNAME/miniconda/bin:$PATH
 ENV EDITOR vim
-
-RUN echo
 
 RUN mkdir -p /home/$USERNAME/projects
 WORKDIR /home/$USERNAME/projects
