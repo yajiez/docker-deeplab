@@ -1,13 +1,13 @@
 FROM ubuntu:16.04
 LABEL maintainer = "Yajie Zhu <yajiez.me@gmail.com>"
 
-ENV TERM xterm
+ENV TERM xterm-256color
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
-ENV USER ubuntu
+ENV USERNAME ubuntu
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN useradd -d /home/$USER -ms /bin/bash -g root -G sudo -p $USER $USER
+RUN useradd -d /home/$USERNAME -ms /bin/bash -g root -G sudo -p ubuntu $USERNAME
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
          build-essential \
@@ -17,30 +17,59 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
          wget \
          vim \
          zsh \
+         tmux \
+         sudo \
+         locales \
+         locales-all \
          fonts-powerline \
          ca-certificates \
          libjpeg-dev \
          libpng-dev &&\
      rm -rf /var/lib/apt/lists/*
 
-RUN chsh $USER -s /bin/zsh
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+RUN chsh $USERNAME -s /bin/zsh
 
 # Oh My ZSH and Spaceship Prompt & Vim
-USER ubuntu
-WORKDIR /home/ubuntu
+USER $USERNAME
+WORKDIR /home/$USERNAME
 
-ENV ZSH_CUSTOM ~/.oh-my-zsh/custom
+ENV ZSH_CUSTOM /home/$USERNAME/.oh-my-zsh/custom
 
 RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
 
 RUN git clone https://github.com/denysdovhan/spaceship-prompt.git $ZSH_CUSTOM/themes/spaceship-prompt && \
-    ln -s $ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme && \
-    echo ZSH_THEME="spaceship" >> ~/.zshrc
+    ln -s $ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme $ZSH_CUSTOM/themes/spaceship.zsh-theme && \
+    sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="spaceship"/' /home/$USERNAME/.zshrc  && \
+    echo SPACESHIP_HOST_SHOW=always >> /home/$USERNAME/.zshrc && \
+    echo SPACESHIP_USER_SHOW=always >> /home/$USERNAME/.zshrc && \
+    echo source /home/$USERNAME/.profile >> /home/$USERNAME/.zshrc
 
-RUN wget https://raw.githubusercontent.com/liuchengxu/space-vim/master/install.sh -O - | zsh || true
+
+RUN wget https://raw.githubusercontent.com/liuchengxu/space-vim/master/install.sh -O - | zsh || true && \
+    echo let g:space_vim_dark_background = 233 >> /home/$USERNAME/.vimrc && \
+    echo let g:netrw_banner = 0 >> /home/$USERNAME/.vimrc && \
+    echo let g:netrw_liststyle = 3 >> /home/$USERNAME/.vimrc && \
+    echo let g:netrw_browse_split = 4 >> /home/$USERNAME/.vimrc && \
+    echo let g:netrw_altv = 1 >> /home/$USERNAME/.vimrc && \
+    echo let g:netrw_winsize = 25 >> /home/$USERNAME/.vimrc
 
 
-# Base CUDA
+RUN git clone https://github.com/gpakosz/.tmux.git /home/$USERNAME/.tmux && \
+    ln -s -f .tmux/.tmux.conf && \
+    cp .tmux/.tmux.conf.local . && \
+    echo set -gu prefix2 >> .tmux.conf.local && \
+    echo unbind C-a >> .tmux.conf.local && \
+    echo unbind C-b >> .tmux.conf.local && \
+    echo set -g prefix C-b >> .tmux.conf.local && \
+    echo bind C-b send-prefix >> .tmux.conf.local
+
+
+# CUDA Configuration
 USER root
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates apt-transport-https gnupg-curl && \
@@ -101,21 +130,39 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Python
 ARG PYTHON_VERSION=3.6
 
-USER ubuntu
-WORKDIR /home/ubuntu
+USER $USERNAME
+WORKDIR /home/$USERNAME
 
-RUN curl -o ~/miniconda.sh -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh  && \
-     chmod +x ~/miniconda.sh && \
-     ~/miniconda.sh -b -p ~/miniconda && \
-     rm ~/miniconda.sh && \
-     ~/miniconda/bin/conda install -y python=$PYTHON_VERSION numpy pyyaml scipy ipython mkl mkl-include cython typing && \
-     ~/miniconda/bin/conda install -y jupyterlab -c conda-forge && \
-     ~/miniconda/bin/conda install -y pytorch torchvision cuda92 -c pytorch && \
-     ~/miniconda/bin/conda clean -ya
+RUN curl -o /home/$USERNAME/miniconda.sh -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+     chmod +x /home/$USERNAME/miniconda.sh && \
+     /home/$USERNAME/miniconda.sh -b -p /home/$USERNAME/miniconda && \
+     rm /home/$USERNAME/miniconda.sh && \
+     /home/$USERNAME/miniconda/bin/conda install -y \
+        python=$PYTHON_VERSION mkl mkl-include cython typing numpy pyyaml scipy ipython tqdm matplotlib seaborn scikit-learn && \
+     /home/$USERNAME/miniconda/bin/conda install -y nodejs jupyterlab scikit-image scikit-optimize geopandas iris xesmf -c conda-forge && \
+     /home/$USERNAME/miniconda/bin/conda install -y -c pyviz holoviews geoviews bokeh && \
+     /home/$USERNAME/miniconda/bin/conda install -y tensorflow-gpu keras-gpu -c anaconda && \
+     /home/$USERNAME/miniconda/bin/conda install -y pytorch torchvision cuda92 -c pytorch && \
+     /home/$USERNAME/miniconda/bin/conda install -y -c pytorch -c fastai fastai && \
+     /home/$USERNAME/miniconda/bin/conda install -c allennlp allennlp && \
+     /home/$USERNAME/miniconda/bin/conda clean -ya && \
+     /home/$USERNAME/miniconda/bin/jupyter serverextension enable --py jupyterlab --user && \
+     /home/$USERNAME/miniconda/bin/jupyter labextension install @pyviz/jupyterlab_pyviz
 
-ENV PATH  ~/miniconda/bin:$PATH
 
-WORKDIR /home/ubuntu/projects
-RUN chmod -R a+w /home/ubuntu/projects
+RUN mkdir -p /home/$USERNAME/.jupyter/custom && mkdir -p /home/$USERNAME/.ipython/profile_default
+COPY jupyter/jupyter_notebook_config.py /home/$USERNAME/.jupyter/
+COPY jupyter/custom.css /home/$USERNAME/.jupyter/custom/
+COPY ipython/ipython_config.py /home/$USERNAME/.ipython/profile_default/
+COPY ipython/default_import.py /home/$USERNAME/.ipython/profile_default/startup/
+
+ENV PATH /home/$USERNAME/miniconda/bin:$PATH
+ENV EDITOR vim
+
+RUN echo
+
+RUN mkdir -p /home/$USERNAME/projects
+WORKDIR /home/$USERNAME/projects
+EXPOSE 8889
 
 CMD ["zsh"]
