@@ -8,6 +8,7 @@ ENV USERNAME ubuntu
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN useradd -d /home/$USERNAME -ms /bin/bash -g root -G sudo -p ubuntu $USERNAME
+RUN echo "ubuntu:ubuntu" | chpasswd
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
          build-essential \
@@ -141,7 +142,7 @@ RUN curl -o /home/$USERNAME/miniconda.sh -O https://repo.continuum.io/miniconda/
         python=$PYTHON_VERSION mkl mkl-include cython typing numpy pyyaml scipy ipython tqdm matplotlib seaborn scikit-learn && \
      /home/$USERNAME/miniconda/bin/conda install -y nodejs jupyterlab scikit-image scikit-optimize geopandas iris xesmf -c conda-forge && \
      /home/$USERNAME/miniconda/bin/conda install -y -c pyviz holoviews geoviews bokeh && \
-     /home/$USERNAME/miniconda/bin/conda install -y tensorflow-gpu keras-gpu -c anaconda && \
+     /home/$USERNAME/miniconda/bin/conda install -y tensorflow tensorflow-gpu keras keras-gpu -c anaconda && \
      /home/$USERNAME/miniconda/bin/conda install -y pytorch torchvision cuda92 -c pytorch && \
      /home/$USERNAME/miniconda/bin/conda install -y -c pytorch -c fastai fastai && \
      /home/$USERNAME/miniconda/bin/conda clean -ya && \
@@ -149,11 +150,19 @@ RUN curl -o /home/$USERNAME/miniconda.sh -O https://repo.continuum.io/miniconda/
      /home/$USERNAME/miniconda/bin/jupyter labextension install @pyviz/jupyterlab_pyviz
 
 
-RUN mkdir -p /home/$USERNAME/.jupyter/custom && mkdir -p /home/$USERNAME/.ipython/profile_default
-COPY jupyter/jupyter_notebook_config.py /home/$USERNAME/.jupyter/
-COPY jupyter/custom.css /home/$USERNAME/.jupyter/custom/
-COPY ipython/ipython_config.py /home/$USERNAME/.ipython/profile_default/
-COPY ipython/default_import.py /home/$USERNAME/.ipython/profile_default/startup/
+RUN mkdir -p /home/$USERNAME/.jupyter/custom && \
+    mkdir -p /home/$USERNAME/.ipython/profile_default/startup && \
+    mkdir -p /home/$USERNAME/.config/matplotlib
+
+COPY --chown=ubuntu:root jupyter/jupyter_notebook_config.py /home/$USERNAME/.jupyter/
+COPY --chown=ubuntu:root jupyter/custom.css /home/$USERNAME/.jupyter/custom/
+COPY --chown=ubuntu:root ipython/ipython_config.py /home/$USERNAME/.ipython/profile_default/
+COPY --chown=ubuntu:root ipython/default_import.py /home/$USERNAME/.ipython/profile_default/startup/
+COPY --chown=ubuntu:root matplotlib/matplotlibrc /home/$USERNAME/.config/matplotlib/
+
+RUN chmod +x /home/$USERNAME/.ipython/profile_default/ipython_config.py && \
+    chmod +x /home/$USERNAME/.ipython/profile_default/startup/default_import.py && \
+    chmod +x /home/$USERNAME/.jupyter/jupyter_notebook_config.py
 
 ENV PATH /home/$USERNAME/miniconda/bin:$PATH
 ENV EDITOR vim
