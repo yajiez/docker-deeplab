@@ -168,7 +168,10 @@ ENV PATH /home/$USERNAME/miniconda/bin:$PATH
 ENV EDITOR vim
 
 RUN mkdir -p /home/$USERNAME/projects
-WORKDIR /home/$USERNAME/projects
+RUN mkdir -p /home/$USERNAME/bin
 EXPOSE 8889
+
+COPY --chown=ubuntu:root jupyter/start-jupyter-lab.sh /home/$USERNAME/bin/
+RUN chmod +x /home/$USERNAME/bin/start-jupyter-lab.sh
 
 CMD ["zsh"]

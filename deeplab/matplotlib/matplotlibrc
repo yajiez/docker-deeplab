@@ -193,7 +193,7 @@
 # The font.size property is the default font size for text, given in pts.
 # 10 pt is the standard value.
 #
-font.family         : serif
+font.family         : DejaVu Serif
 #font.style          : normal
 #font.variant        : normal
 font.weight         : bold
@@ -204,7 +204,7 @@ font.weight         : bold
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
 font.size           : 10.0
-font.serif          : Neris, Times New Roman, Times, Palatino, Charter, serif
+font.serif          : DejaVu Serif, Neris, Times New Roman, Times, Palatino, Charter, serif
 #font.sans-serif     : Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
 #font.fantasy        : Comic Sans MS, Chicago, Charcoal, Impact, Western, Humor Sans, xkcd, fantasy
