@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.2-cudnn7-devel
+FROM ubuntu:latest
 LABEL maintainer = "Yajie Zhu <yajiez.me@gmail.com>"
 
 ENV USERNAME deepai
@@ -91,7 +91,7 @@ RUN /home/$USERNAME/miniconda/bin/conda config --add channels anaconda && \
 RUN /home/$USERNAME/miniconda/bin/conda install -y \
     python=$PYTHON_VERSION cython typing mkl-service numpy pyyaml scipy ipython tqdm pandas matplotlib scikit-learn xgboost lightgbm \
     catboost gensim nodejs jupyterlab scikit-optimize geopandas ncurses libiconv iris xesmf fiona shapely pyproj rtree scikit-image \
-    nltk seaborn plotly holoviews geoviews bokeh tensorflow-gpu keras-gpu pytorch torchvision cuda92 fastai pymc3 dask blaze numba \
+    nltk seaborn plotly holoviews geoviews bokeh tensorflow keras pytorch torchvision cuda92 fastai pymc3 dask blaze numba \
     scrapy beautifulsoup4 lxml opencv statsmodels sympy mpmath sqlalchemy h5py pytables pytest flask datashape cudatoolkit && \
     /home/$USERNAME/miniconda/bin/conda clean -ya
 
