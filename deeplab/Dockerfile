@@ -81,17 +81,23 @@ RUN curl -o /home/$USERNAME/miniconda.sh -O https://repo.continuum.io/miniconda/
      rm /home/$USERNAME/miniconda.sh
 
 
+RUN /home/$USERNAME/miniconda/bin/conda config --add channels anaconda && \
+    /home/$USERNAME/miniconda/bin/conda config --add channels plotly && \
+    /home/$USERNAME/miniconda/bin/conda config --add channels fastai && \
+    /home/$USERNAME/miniconda/bin/conda config --add channels pytorch && \
+    /home/$USERNAME/miniconda/bin/conda config --add channels pyviz && \
+    /home/$USERNAME/miniconda/bin/conda config --add channels conda-forge
+
 RUN /home/$USERNAME/miniconda/bin/conda install -y \
-        python=$PYTHON_VERSION mkl mkl-include cython typing numpy pyyaml scipy ipython tqdm matplotlib seaborn scikit-learn
-
-
-RUN /home/$USERNAME/miniconda/bin/conda install -y -c conda-forge -c pyviz -c pytorch -c fastai -c anaconda \
-    nodejs jupyterlab scikit-image scikit-optimize geopandas iris xesmf holoviews geoviews bokeh \
-    fiona shapely pyproj rtree tensorflow tensorflow-gpu keras keras-gpu pytorch torchvision cuda92 fastai && \
+    python=$PYTHON_VERSION cython typing mkl-service numpy pyyaml scipy ipython tqdm pandas matplotlib scikit-learn xgboost lightgbm \
+    catboost gensim nodejs jupyterlab scikit-optimize geopandas ncurses libiconv iris xesmf fiona shapely pyproj rtree scikit-image \
+    nltk seaborn plotly holoviews geoviews bokeh tensorflow-gpu keras-gpu pytorch torchvision cuda92 fastai pymc3 dask blaze numba \
+    scrapy beautifulsoup4 lxml opencv statsmodels sympy mpmath sqlalchemy h5py pytables pytest flask datashape cudatoolkit && \
     /home/$USERNAME/miniconda/bin/conda clean -ya
 
 RUN /home/$USERNAME/miniconda/bin/jupyter serverextension enable --py jupyterlab --user && \
-    /home/$USERNAME/miniconda/bin/jupyter labextension install @pyviz/jupyterlab_pyviz
+    /home/$USERNAME/miniconda/bin/jupyter labextension install @pyviz/jupyterlab_pyviz && \
+    /home/$USERNAME/miniconda/bin/jupyter labextension install @jupyterlab/toc
 
 
 RUN mkdir -p /home/$USERNAME/.jupyter/custom && \
@@ -103,6 +109,7 @@ COPY --chown=deepai:root jupyter/custom.css /home/$USERNAME/.jupyter/custom/
 COPY --chown=deepai:root ipython/ipython_config.py /home/$USERNAME/.ipython/profile_default/
 COPY --chown=deepai:root ipython/default_import.py /home/$USERNAME/.ipython/profile_default/startup/
 COPY --chown=deepai:root matplotlib/matplotlibrc /home/$USERNAME/.config/matplotlib/
+COPY --chown=deepai:root profile /home/$USERNAME/.profile
 
 RUN chmod +x /home/$USERNAME/.ipython/profile_default/ipython_config.py && \
     chmod +x /home/$USERNAME/.ipython/profile_default/startup/default_import.py && \
@@ -110,6 +117,7 @@ RUN chmod +x /home/$USERNAME/.ipython/profile_default/ipython_config.py && \
 
 ENV PATH /home/$USERNAME/miniconda/bin:$PATH
 ENV EDITOR vim
+ENV MKL_THREADING_LAYER GNU
 
 RUN mkdir -p /home/$USERNAME/projects
 RUN mkdir -p /home/$USERNAME/bin
