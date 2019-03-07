@@ -91,9 +91,13 @@ RUN /home/$USERNAME/miniconda/bin/conda config --add channels anaconda && \
 RUN /home/$USERNAME/miniconda/bin/conda install -y \
     python=$PYTHON_VERSION cython typing mkl-service numpy pyyaml scipy ipython tqdm pandas matplotlib scikit-learn xgboost lightgbm \
     catboost gensim nodejs jupyterlab scikit-optimize geopandas ncurses libiconv iris xesmf fiona shapely pyproj rtree scikit-image \
-    nltk seaborn plotly holoviews geoviews bokeh tensorflow-gpu keras-gpu pytorch torchvision cuda92 fastai pymc3 dask blaze numba \
+    nltk seaborn plotly holoviews geoviews bokeh tensorflow-gpu keras-gpu pymc3 dask blaze numba \
     scrapy beautifulsoup4 lxml opencv statsmodels sympy mpmath sqlalchemy h5py pytables pytest flask datashape cudatoolkit && \
     /home/$USERNAME/miniconda/bin/conda clean -ya
+
+RUN /home/$USERNAME/miniconda/bin/conda install -y fastai -c fastai -c pytorch
+
+RUN /home/$USERNAME/miniconda/bin/conda install -y pytorch torchvision cudatoolkit=9.0 -c pytorch
 
 RUN /home/$USERNAME/miniconda/bin/jupyter serverextension enable --py jupyterlab --user && \
     /home/$USERNAME/miniconda/bin/jupyter labextension install @pyviz/jupyterlab_pyviz && \
