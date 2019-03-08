@@ -70,7 +70,7 @@ RUN git clone https://github.com/gpakosz/.tmux.git /home/$USERNAME/.tmux && \
 
 
 # Python
-ARG PYTHON_VERSION=3.6
+ARG PYTHON_VERSION=3.7
 
 USER $USERNAME
 WORKDIR /home/$USERNAME
@@ -88,16 +88,14 @@ RUN /home/$USERNAME/miniconda/bin/conda config --add channels anaconda && \
     /home/$USERNAME/miniconda/bin/conda config --add channels pyviz && \
     /home/$USERNAME/miniconda/bin/conda config --add channels conda-forge
 
+
 RUN /home/$USERNAME/miniconda/bin/conda install -y \
     python=$PYTHON_VERSION cython typing mkl-service numpy pyyaml scipy ipython tqdm pandas matplotlib scikit-learn xgboost lightgbm \
     catboost gensim nodejs jupyterlab scikit-optimize geopandas ncurses libiconv iris xesmf fiona shapely pyproj rtree scikit-image \
-    nltk seaborn plotly holoviews geoviews bokeh tensorflow-gpu keras-gpu pymc3 dask blaze numba \
+    nltk seaborn plotly holoviews geoviews bokeh tensorflow-gpu keras-gpu pymc3 dask blaze numba fastai pytorch torchvision cudatoolkit=9.0 \
     scrapy beautifulsoup4 lxml opencv statsmodels sympy mpmath sqlalchemy h5py pytables pytest flask datashape && \
     /home/$USERNAME/miniconda/bin/conda clean -ya
 
-RUN /home/$USERNAME/miniconda/bin/conda install -y fastai
-
-RUN /home/$USERNAME/miniconda/bin/conda install -y pytorch torchvision cudatoolkit=9.0 -c pytorch
 
 RUN /home/$USERNAME/miniconda/bin/jupyter serverextension enable --py jupyterlab --user && \
     /home/$USERNAME/miniconda/bin/jupyter labextension install @pyviz/jupyterlab_pyviz && \
