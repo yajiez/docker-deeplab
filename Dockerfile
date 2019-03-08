@@ -92,7 +92,7 @@ RUN /home/$USERNAME/miniconda/bin/conda config --add channels anaconda && \
 RUN /home/$USERNAME/miniconda/bin/conda install -y \
     python=$PYTHON_VERSION cython typing mkl-service numpy pyyaml scipy ipython tqdm pandas matplotlib scikit-learn xgboost lightgbm \
     catboost gensim nodejs jupyterlab scikit-optimize geopandas ncurses libiconv iris xesmf fiona shapely pyproj rtree scikit-image \
-    nltk seaborn plotly holoviews geoviews bokeh pymc3 dask blaze numba fastai pytorch torchvision cudatoolkit=9.0 \
+    nltk seaborn plotly holoviews geoviews gdal bokeh pymc3 dask blaze numba fastai pytorch torchvision cudatoolkit=9.0 \
     scrapy beautifulsoup4 lxml opencv statsmodels sympy mpmath sqlalchemy h5py pytables pytest flask datashape && \
     /home/$USERNAME/miniconda/bin/conda clean -ya
 
