@@ -98,8 +98,14 @@ RUN /home/$USERNAME/miniconda/bin/conda install -y \
 
 
 RUN /home/$USERNAME/miniconda/bin/jupyter serverextension enable --py jupyterlab --user && \
+    /home/$USERNAME/miniconda/bin/jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
     /home/$USERNAME/miniconda/bin/jupyter labextension install @pyviz/jupyterlab_pyviz && \
-    /home/$USERNAME/miniconda/bin/jupyter labextension install @jupyterlab/toc
+    /home/$USERNAME/miniconda/bin/jupyter labextension install @jupyterlab/toc && \
+    /home/$USERNAME/miniconda/bin/jupyter nbextension enable --py widgetsnbextension
+
+
+RUN /home/$USERNAME/miniconda/bin/conda create -n tensorflow -y python=$PYTHON_VERSION pandas seaborn ipykernel tqdm scikit-learn
+
 
 
 RUN mkdir -p /home/$USERNAME/.jupyter/custom && \
