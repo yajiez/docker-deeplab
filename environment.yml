@@ -42,6 +42,7 @@ dependencies:
   - sqlite
   - scrapy
   - beautifulsoup4
+  - lxml
   - psutil
   - tqdm
   - pytest
