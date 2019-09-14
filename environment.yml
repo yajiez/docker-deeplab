@@ -27,6 +27,7 @@ dependencies:
   - pyarrow
   - fastparquet
   - openpyxl
+  - xlrd
   - h5py
   - pytables
   - numba
