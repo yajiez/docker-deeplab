@@ -1,4 +1,4 @@
-# Aliases
+# Useful aliases
 
 alias py='ipython'
 alias lab="jupyter lab"
