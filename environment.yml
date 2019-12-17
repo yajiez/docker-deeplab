@@ -2,7 +2,7 @@ name: deeplab
 channels:
   - conda-forge
 dependencies:
-  - python=3.6
+  - python=3.7
   - numpy
   - scipy
   - statsmodels
@@ -22,6 +22,7 @@ dependencies:
   - dask
   - pyspark
   - pandas
+  - geopandas
   - pyarrow
   - fastparquet
   - openpyxl
@@ -47,7 +48,7 @@ dependencies:
   - pytest
   - tox
   - jupyterlab
-  - ipython
+  - ipython==7.5
   - ipykernel
   - ipywidgets
   - sphinx
